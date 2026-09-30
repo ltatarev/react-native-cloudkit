@@ -1,20 +1,10 @@
-import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from '@ltatarev/react-native-cloudkit';
-
-const result = multiply(3, 7);
+import { Text, View } from 'react-native';
+import { isAvailable } from '@ltatarev/react-native-cloudkit';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
+    <View>
+      <Text>isAvailable: {String(isAvailable())}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

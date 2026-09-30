@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => min_ios_version_supported }
+  s.platforms    = { :ios => "17.0" }
   s.source       = { :git => "https://github.com/ltatarev/react-native-cloudkit.git", :tag => "#{s.version}" }
 
   s.source_files = [
@@ -18,6 +18,10 @@ Pod::Spec.new do |s|
     "ios/**/*.{m,mm}",
     "cpp/**/*.{hpp,cpp}",
   ]
+  # Pure Swift tests, compiled for macOS by scripts/test-swift.sh.
+  s.exclude_files = "ios/Tests/**"
+  s.frameworks = "CloudKit", "UIKit", "Network"
+  s.libraries = "sqlite3"
 
   s.dependency 'React-jsi'
   s.dependency 'React-callinvoker'

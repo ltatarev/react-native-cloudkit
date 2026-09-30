@@ -1,23 +1,30 @@
 {
-  "cxxNamespace": ["ltatarev_reactnativecloudkit"],
+  "cxxNamespace": [
+    "ltatarev_reactnativecloudkit"
+  ],
   "ios": {
     "iosModuleName": "ReactNativeCloudkit"
   },
   "android": {
-    "androidNamespace": ["ltatarev","reactnativecloudkit"],
+    "androidNamespace": [
+      "ltatarev",
+      "reactnativecloudkit"
+    ],
     "androidCxxLibName": "ltatarev_reactnativecloudkit"
   },
   "autolinking": {
-    "ReactNativeCloudkit": {
+    "CloudKit": {
       "ios": {
         "language": "swift",
-        "implementationClassName": "ReactNativeCloudkit"
+        "implementationClassName": "HybridCloudKit"
       },
       "android": {
         "language": "kotlin",
-        "implementationClassName": "ReactNativeCloudkit"
+        "implementationClassName": "HybridCloudKit"
       }
     }
   },
-  "ignorePaths": ["node_modules"]
+  "ignorePaths": [
+    "node_modules"
+  ]
 }
