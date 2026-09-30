@@ -119,5 +119,55 @@ do {
   check(record["title"] == nil, "null removes a field")
 }
 
+// MARK: Store
+
+do {
+  let url = FileManager.default.temporaryDirectory.appendingPathComponent("rnck-test-\(UUID().uuidString).sqlite")
+  let store = try Store(url: url)
+  let key = RecordKey(scope: .private, owner: "", zone: "notes", name: "n1")
+
+  try await store.setRecordTypes(["Note": RecordTypeConfig(fields: ["title": .string])])
+  let types = try await store.recordTypes()
+  check(types["Note"]?.fields["title"] == .string, "record types round-trip")
+
+  try await store.enqueue(OutboxRow(key: key, recordType: "Note", fields: ["title": .string("a")], times: ["title": 1], op: .save))
+  try await store.enqueue(OutboxRow(key: key, recordType: "Note", fields: ["title": .string("b")], times: ["title": 2], op: .save))
+  let outbox = try await store.allOutbox()
+  check(outbox.count == 1, "a newer save replaces the outbox row")
+  check(outbox.first?.fields["title"] == .string("b"), "the newer fields win")
+
+  try await store.appendInbox(kind: "upsert", payloadJson: "{}")
+  try await store.appendInbox(kind: "delete", payloadJson: "{}")
+  let rows = try await store.drainInbox(limit: 10)
+  check(rows.map(\.kind) == ["upsert", "delete"], "the inbox drains in order")
+  let again = try await store.drainInbox(limit: 10)
+  check(again.count == 2, "a drain does not remove rows")
+  try await store.ackInbox([rows[0].id])
+  let afterAck = try await store.drainInbox(limit: 10)
+  check(afterAck.map(\.kind) == ["delete"], "an ack removes one row")
+
+  let zone = ZoneKey(scope: .private, owner: "", zone: "notes")
+  try await store.upsertZone(zone, doNotSync: true)
+  let purged = try await store.isDoNotSync(zone)
+  check(purged, "a purged zone is do-not-sync")
+  try await store.setKnown(key, KnownRecord(recordType: "Note", systemFields: Data([1]), fields: [:], times: [:]))
+  try await store.clearZone(zone, keepZoneRow: true)
+  let queued = try await store.outbox(key)
+  let known = try await store.known(key)
+  check(queued == nil && known == nil, "clearing a zone drops its rows")
+  let exists = try await store.zoneExists(zone)
+  check(exists, "the zone row can stay")
+
+  try await store.setEngineState(.shared, Data([7]))
+  let state = try await store.engineState(.shared)
+  check(state == Data([7]), "engine state round-trips")
+
+  await store.destroy()
+  check(!FileManager.default.fileExists(atPath: url.path), "destroy deletes the file")
+} catch {
+  failures += 1
+  print("✗ store threw \(error)")
+}
+
 print("\(passes) passed, \(failures) failed")
 exit(failures == 0 ? 0 : 1)
