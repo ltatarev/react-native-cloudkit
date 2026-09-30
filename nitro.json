@@ -1,0 +1,23 @@
+{
+  "cxxNamespace": ["ltatarev_reactnativecloudkit"],
+  "ios": {
+    "iosModuleName": "ReactNativeCloudkit"
+  },
+  "android": {
+    "androidNamespace": ["ltatarev","reactnativecloudkit"],
+    "androidCxxLibName": "ltatarev_reactnativecloudkit"
+  },
+  "autolinking": {
+    "ReactNativeCloudkit": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "ReactNativeCloudkit"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "ReactNativeCloudkit"
+      }
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
