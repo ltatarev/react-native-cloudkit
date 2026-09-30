@@ -1,3 +1,4 @@
+import CloudKit
 import UIKit
 import React
 import React_RCTAppDelegate
@@ -30,6 +31,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
 
     return true
+  }
+
+  /// A share link tapped in Messages. The package holds the invite and emits
+  /// `inviteReceived`; the app accepts after its own join screen.
+  func application(
+    _ application: UIApplication,
+    userDidAcceptCloudKitShareWith metadata: CKShare.Metadata
+  ) {
+    NotificationCenter.default.post(
+      name: Notification.Name("RNCKUserDidAcceptCloudKitShare"), object: metadata)
   }
 }
 

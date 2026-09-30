@@ -10,7 +10,12 @@
       "types": "./lib/typescript/src/index.d.ts",
       "default": "./lib/module/index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./react": {
+      "ltatarev-react-native-cloudkit-source": "./src/react/index.ts",
+      "types": "./lib/typescript/src/react/index.d.ts",
+      "default": "./lib/module/react/index.js"
+    }
   },
   "files": [
     "src",

@@ -2,7 +2,12 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "@ltatarev/react-native-cloudkit": ["./src/index"]
+      "@ltatarev/react-native-cloudkit": [
+        "./src/index"
+      ],
+      "@ltatarev/react-native-cloudkit/react": [
+        "./src/react/index"
+      ]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -13,7 +18,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
@@ -26,6 +33,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "types": [
+      "jest"
+    ]
   }
 }
