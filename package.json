@@ -1,6 +1,6 @@
 {
   "name": "@ltatarev/react-native-cloudkit",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "CloudKit sync and zone-wide sharing for bare React Native apps, on CKSyncEngine",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -47,7 +47,8 @@
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
-    "test:swift": "./scripts/test-swift.sh"
+    "test:swift": "./scripts/test-swift.sh",
+    "release": "release-it"
   },
   "keywords": [
     "react-native",
@@ -71,7 +72,8 @@
   },
   "homepage": "https://github.com/ltatarev/react-native-cloudkit#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",
@@ -79,6 +81,7 @@
     "@eslint/js": "^9.39.5",
     "@react-native/babel-preset": "0.86.0",
     "@react-native/eslint-config": "0.86.2",
+    "@release-it/conventional-changelog": "^12.0.2",
     "@types/jest": "^29",
     "@types/react": "^19.2.0",
     "babel-jest": "^29",
@@ -94,6 +97,7 @@
     "react-native": "0.86.0",
     "react-native-builder-bob": "^0.43.1",
     "react-native-nitro-modules": "0.35.9",
+    "release-it": "^21.1.0",
     "turbo": "^2.10.8",
     "typescript": "^6.0.3"
   },
@@ -155,5 +159,30 @@
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
     ]
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}",
+      "tagName": "${version}",
+      "requireBranch": "main"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true
+    },
+    "hooks": {
+      "before:init": "yarn typecheck && yarn lint && yarn test && yarn test:swift"
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": {
+          "name": "conventionalcommits"
+        },
+        "infile": "CHANGELOG.md",
+        "header": "# Changelog"
+      }
+    }
   }
 }
