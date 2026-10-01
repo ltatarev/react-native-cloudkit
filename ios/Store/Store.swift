@@ -218,7 +218,7 @@ actor Store {
       try body()
       try run("COMMIT")
     } catch {
-      try? run("ROLLBACK")
+      _ = try? run("ROLLBACK")
       throw error
     }
   }
