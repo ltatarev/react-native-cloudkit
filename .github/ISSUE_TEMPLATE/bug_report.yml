@@ -39,6 +39,26 @@ body:
       placeholder: "x.x.x"
     validations:
       required: true
+  - type: input
+    id: ios-version
+    attributes:
+      label: iOS version and device
+      description: For example "iOS 18.2, iPhone 15". Say if it is a simulator.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Setup or build
+        - Account
+        - Private sync
+        - Sharing
+        - Sync status
+        - Other
+    validations:
+      required: true
   - type: textarea
     id: react-native-info
     attributes:

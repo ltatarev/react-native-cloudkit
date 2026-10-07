@@ -23,14 +23,7 @@ yarn
 
 This project uses Nitro Modules. If you're not familiar with how Nitro works, make sure to check the [Nitro Modules Docs](https://nitro.margelo.com/).
 
-You need to run [Nitrogen](https://nitro.margelo.com/docs/nitrogen) to generate the boilerplate code required for this project. The example app will not build without this step.
-
-Run **Nitrogen** in following cases:
-
-- When you make changes to any `*.nitro.ts` files.
-- When running the project for the first time (since the generated files are not committed to the repository).
-
-To invoke **Nitrogen**, use the following command:
+[Nitrogen](https://nitro.margelo.com/docs/nitrogen) generates the bridge code in `nitrogen/generated/` from `src/specs/CloudKit.nitro.ts`. The generated files are committed. Run Nitrogen again after each change to a `*.nitro.ts` file, and commit the result:
 
 ```sh
 yarn nitrogen
@@ -104,7 +97,8 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn example start`: start the Metro server for the example app.
 - `yarn example android`: run the example app on Android.
 - `yarn example ios`: run the example app on iOS.
-- `yarn release`: publish a new version.
+- `yarn release`: publish a stable version.
+- `yarn release:alpha`: publish an alpha version to the `alpha` npm tag.
 
 ### Publishing a release
 
@@ -112,9 +106,11 @@ The `package.json` file contains various scripts for common tasks:
 
 1. Run `npm login`.
 2. Set `GITHUB_TOKEN` to a token that can create releases, or let release-it open the release page in the browser.
-3. On `main`, with a clean working tree, run `yarn release`.
+3. On `main`, with a clean working tree, run `yarn release:alpha` for an alpha, or `yarn release` for a stable version.
 
 The release runs the type check, lint, and the Jest and Swift tests first. Then it bumps the version, updates `CHANGELOG.md`, commits, tags, pushes, publishes to npm, and creates a GitHub release.
+
+An alpha goes to the `alpha` npm tag, and the GitHub release is marked as a pre-release. Users install it with `yarn add @ltatarev/react-native-cloudkit@alpha`. The next `yarn release:alpha` increments the alpha number (`0.1.0-alpha.1`).
 
 The tag has no `v` prefix (`0.1.0`), because `ReactNativeCloudkit.podspec` uses the version as the git tag.
 

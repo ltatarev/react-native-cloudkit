@@ -1,20 +1,60 @@
 # @ltatarev/react-native-cloudkit
 
+[![npm](https://img.shields.io/npm/v/@ltatarev/react-native-cloudkit/alpha?label=npm%40alpha)](https://www.npmjs.com/package/@ltatarev/react-native-cloudkit)
+[![CI](https://github.com/ltatarev/react-native-cloudkit/actions/workflows/ci.yml/badge.svg)](https://github.com/ltatarev/react-native-cloudkit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+![Platform: iOS 17+](https://img.shields.io/badge/platform-iOS%2017%2B-lightgrey.svg)
+
 CloudKit sync and zone-wide sharing for bare React Native apps, built on
 `CKSyncEngine`. The package never learns what your data is. Your app's own
 database stays the source of truth. The package only moves changes in and
 out of iCloud.
 
-- iOS 17 or later. On Android every call resolves with an empty or "not
-  available" answer, and `isAvailable()` is `false`.
-- One dependency: `react-native-nitro-modules`. Native code uses the system
-  `sqlite3`, CloudKit, UIKit and Network only.
-- No Expo config plugin. The setup below is by hand.
+- **Offline first.** Writes go to a native outbox and return at once.
+- **A durable inbox.** Inbound changes wait until your app acks them, so a
+  crash never loses a change.
+- **Field-level merge.** Two devices that edit different fields of one
+  record both keep their edits.
+- **Zone-wide sharing.** One `CKShare` per zone, with your own join screen.
+- **Small.** One dependency: `react-native-nitro-modules`. Native code uses
+  the system `sqlite3`, CloudKit, UIKit and Network only.
+
+> [!WARNING]
+> **Alpha.** The API can change before 1.0. Private sync is tested on two
+> devices. Sharing is not tested on devices yet. See
+> [Status](#status).
+
+## Contents
+
+- [Requirements](#requirements)
+- [Install](#install)
+- [Bare app setup](#bare-app-setup)
+- [Configure](#configure)
+- [Write, then read the inbox](#write-then-read-the-inbox)
+- [Sharing](#sharing)
+- [Sync status](#sync-status)
+- [React hooks](#react-hooks)
+- [Errors](#errors)
+- [API reference](#api-reference)
+- [Before release: deploy the schema](#before-release-deploy-the-schema)
+- [Status](#status)
+- [Develop](#develop)
+
+## Requirements
+
+| | Version |
+| --- | --- |
+| iOS | 17.0 or later |
+| React Native | Tested with 0.86 |
+| `react-native-nitro-modules` | 0.35.9 or later |
+| Xcode | Tested with 26 |
+| Android | Builds, but does nothing: every call resolves with an empty or "not available" answer, and `isAvailable()` is `false`. |
+| Expo | Bare workflow or prebuild only. There is no config plugin, so do the setup below by hand. |
 
 ## Install
 
 ```sh
-yarn add @ltatarev/react-native-cloudkit react-native-nitro-modules
+yarn add @ltatarev/react-native-cloudkit@alpha react-native-nitro-modules
 cd ios && pod install
 ```
 
@@ -181,7 +221,7 @@ participant count. Show your own join screen, then call
 `acceptInvite(token)`, which resolves the joined zone and emits
 `shareAccepted`. An invite that arrives before `configure` is emitted after
 it. A share URL that reaches the app through `Linking` goes to
-`acceptShareUrl(url)`, with the same result.
+`acceptShareUrl(url)`, which emits the same `inviteReceived`.
 
 A participant's name is `null` when the person is not discoverable.
 
@@ -226,12 +266,70 @@ A refused call rejects with `CloudKitError` and a `code`: `notConfigured`,
 The package never logs record contents. Logs have record names, zone names
 and error codes.
 
+## API reference
+
+All functions come from `@ltatarev/react-native-cloudkit`. The hooks come
+from `@ltatarev/react-native-cloudkit/react`.
+
+| Function | Result | Use |
+| --- | --- | --- |
+| `configure(options)` | `Promise<void>` | Set the container and the record types. Call it once, first. |
+| `isAvailable()` | `boolean` | `true` on iOS 17 or later. |
+| `getAccountStatus()` | `Promise<AccountStatus>` | The iCloud account state. |
+| `getCurrentUserId()` | `Promise<string \| null>` | The user record name of the signed-in account. |
+| `ensureZone(zone)` | `Promise<void>` | Create a private zone, or turn on a purged zone again. |
+| `deleteZone(zone)` | `Promise<void>` | Delete a zone and its records. |
+| `listZones(scope)` | `Promise<ZoneInfo[]>` | The known zones of one database. |
+| `saveRecords(records)` | `Promise<void>` | Put changes in the outbox. |
+| `deleteRecords(refs)` | `Promise<void>` | Put deletes in the outbox. |
+| `syncNow()` | `Promise<void>` | Send and fetch now. |
+| `drainInbox(limit?)` | `Promise<InboxEvent[]>` | Read the oldest inbound changes that are not acked. |
+| `ackInbox(ids)` | `Promise<void>` | Remove applied events from the inbox. |
+| `presentShareSheet(zone, options)` | `Promise<'shared' \| 'cancelled'>` | Share a private zone. |
+| `presentManageSheet(zone)` | `Promise<void>` | Show `UICloudSharingController` for a shared zone. |
+| `getShare(zone)` | `Promise<ShareInfo \| null>` | The share and its participants. |
+| `setParticipantPermission(zone, id, permission)` | `Promise<void>` | Owner only. |
+| `removeParticipant(zone, id)` | `Promise<void>` | Owner only. |
+| `stopSharing(zone)` | `Promise<void>` | Owner only. Deletes the share. The zone and its records stay. |
+| `leaveShare(zone)` | `Promise<void>` | Participant only. |
+| `acceptInvite(token)` | `Promise<ZoneInfo>` | Join after `inviteReceived`. |
+| `acceptShareUrl(url)` | `Promise<void>` | Read a share URL from `Linking`. It emits `inviteReceived`. |
+| `addListener(event, listener)` | `() => void` | Subscribe. Call the result to unsubscribe. |
+
+| Event | Payload |
+| --- | --- |
+| `inboxChanged` | none |
+| `syncStatus` | `SyncStatus` |
+| `accountChanged` | `AccountChange` |
+| `inviteReceived` | `Invite` |
+| `shareAccepted` | `ZoneInfo` |
+
+Every type is exported. The TSDoc comments in
+[`src/types.ts`](./src/types.ts) give the details.
+
 ## Before release: deploy the schema
 
 CloudKit creates record types in the development environment only. Before
 you ship, deploy the schema to production in CloudKit Console. After a
 production deploy, a record type or a field cannot be deleted, so every
 field name is permanent.
+
+## Status
+
+This is an alpha. The table shows what is tested on two physical iPhones.
+The full checklist is in [`example/TESTING.md`](./example/TESTING.md).
+
+| Area | Tested on devices | Not tested on devices yet |
+| --- | --- | --- |
+| Account | Status `available`, the same user id on two devices | Sign-out and sign-in with no relaunch, Android |
+| Private sync | Live sync, sync after a cold start, offline edits, field merge, delete | A kill during sync, sign-out then sign-in, purge, push with no "Sync now" |
+| Sharing | — | All of it |
+| Status | `offline`, `syncing`, `idle` | `quotaExceeded`, a switch of Apple IDs |
+| Setup | A new bare app reaches `available` in 15 minutes | — |
+
+The Swift unit tests cover the error map, the conflict merge, the field
+codec, the validation and the store. Report a problem in
+[GitHub issues](https://github.com/ltatarev/react-native-cloudkit/issues).
 
 ## Develop
 
@@ -240,8 +338,12 @@ yarn typecheck && yarn lint && yarn test && yarn test:swift
 yarn example ios
 ```
 
-`yarn test:swift` compiles the pure Swift in `ios/Core` for macOS and runs
-its tests. The example app uses its own container,
+`yarn test:swift` compiles the pure Swift in `ios/Core` and the store for
+macOS, and runs their tests. The example app uses its own container,
 `iCloud.com.ltatarev.cloudkit-example`, on the bundle id
-`com.ltatarev.cloudkit-example`. See `example/TESTING.md` for the
-two-device checklist.
+`com.ltatarev.cloudkit-example`. See [`example/README.md`](./example/README.md)
+to run it, and [`CONTRIBUTING.md`](./CONTRIBUTING.md) to send a change.
+
+## License
+
+[MIT](./LICENSE) © Lucija Tatarević

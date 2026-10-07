@@ -22,11 +22,10 @@
     "lib",
     "android",
     "ios",
-    "cpp",
     "nitrogen",
     "nitro.json",
     "*.podspec",
-    "react-native.config.js",
+    "CHANGELOG.md",
     "!ios/build",
     "!ios/Tests",
     "!android/build",
@@ -48,16 +47,18 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
     "test:swift": "./scripts/test-swift.sh",
-    "release": "release-it"
+    "release": "release-it",
+    "release:alpha": "release-it --preRelease=alpha"
   },
   "keywords": [
     "react-native",
     "ios",
-    "android",
     "cloudkit",
     "icloud",
     "sync",
+    "offline-first",
     "sharing",
+    "ckshare",
     "cksyncengine",
     "nitro-modules"
   ],
@@ -170,7 +171,8 @@
       "publish": true
     },
     "github": {
-      "release": true
+      "release": true,
+      "releaseName": "${version}"
     },
     "hooks": {
       "before:init": "yarn typecheck && yarn lint && yarn test && yarn test:swift"
