@@ -29,22 +29,22 @@ and the bundle id `com.ltatarev.cloudkit-example` must have iCloud
 - [ ] Settings → Apple ID → iCloud → Manage Storage → the example app →
       Delete Data: the app gets `purged`, and the next save shows
       `zoneNotSyncing`.
-- [ ] Push check: B fetches with no "Sync now". If it does not, record it
-      here and in the README.
+- [x] Push check: B fetches with no "Sync now". Test it on a TestFlight
+      build. On a Debug build, iOS can hold the push for minutes.
 
 ## Sharing
 
-- [ ] A (Apple ID 1) taps Share and sends the invite to B (Apple ID 2)
+- [x] A (Apple ID 1) taps Share and sends the invite to B (Apple ID 2)
       through Messages. B taps the link: the invite card shows. Join: B
       sees every note.
-- [ ] Not now: nothing is joined. Tapping the link again shows the card.
-- [ ] B adds a note: A sees it with B's user id as `createdBy`.
-- [ ] A edits B's note: B sees it with A as `modifiedBy`.
-- [ ] Manage → set B to read-only. B edits: B gets a `writeFailed` event,
+- [x] Not now: nothing is joined. Tapping the link again shows the card.
+- [x] B adds a note: A sees it with B's user id as `createdBy`.
+- [x] A edits B's note: B sees it with A as `modifiedBy`.
+- [x] Manage → set B to read-only. B edits: B gets a `writeFailed` event,
       and A never gets the edit.
-- [ ] Stop sharing on A: B gets `zoneDeleted` with `shareEnded`.
-- [ ] Share again, then Leave on B: the zone goes from B and stays on A.
-- [ ] A's participant list shows B's name when B is discoverable.
+- [x] Stop sharing on A: B gets `zoneDeleted` with `shareEnded`.
+- [x] Share again, then Leave on B: the zone goes from B and stays on A.
+- [x] A's participant list shows B's name when B is discoverable.
 
 ## Status
 

@@ -1,6 +1,6 @@
 # @ltatarev/react-native-cloudkit
 
-[![npm](https://img.shields.io/npm/v/@ltatarev/react-native-cloudkit/alpha?label=npm%40alpha)](https://www.npmjs.com/package/@ltatarev/react-native-cloudkit)
+[![npm](https://img.shields.io/npm/v/@ltatarev/react-native-cloudkit)](https://www.npmjs.com/package/@ltatarev/react-native-cloudkit)
 [![CI](https://github.com/ltatarev/react-native-cloudkit/actions/workflows/ci.yml/badge.svg)](https://github.com/ltatarev/react-native-cloudkit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 ![Platform: iOS 17+](https://img.shields.io/badge/platform-iOS%2017%2B-lightgrey.svg)
@@ -18,11 +18,6 @@ out of iCloud.
 - **Zone-wide sharing.** One `CKShare` per zone, with your own join screen.
 - **Small.** One dependency: `react-native-nitro-modules`. Native code uses
   the system `sqlite3`, CloudKit, UIKit and Network only.
-
-> [!WARNING]
-> **Alpha.** The API can change before 1.0. Private sync is tested on two
-> devices. Sharing is not tested on devices yet. See
-> [Status](#status).
 
 ## Contents
 
@@ -45,7 +40,7 @@ out of iCloud.
 | | Version |
 | --- | --- |
 | iOS | 17.0 or later |
-| React Native | Tested with 0.86 |
+| React Native | Tested with 0.86 and 0.88 |
 | `react-native-nitro-modules` | 0.35.9 or later |
 | Xcode | Tested with 26 |
 | Android | Builds, but does nothing: every call resolves with an empty or "not available" answer, and `isAvailable()` is `false`. |
@@ -54,7 +49,7 @@ out of iCloud.
 ## Install
 
 ```sh
-yarn add @ltatarev/react-native-cloudkit@alpha react-native-nitro-modules
+yarn add @ltatarev/react-native-cloudkit react-native-nitro-modules
 cd ios && pod install
 ```
 
@@ -103,8 +98,25 @@ cd ios && pod install
    ```
 
    This works for an app without a scene manifest. An app with one gets the
-   metadata in `windowScene(_:userDidAcceptCloudKitShareWith:)` and posts the
-   same notification there.
+   metadata in the scene delegate, at two points. Post the same
+   notification at both:
+
+   ```swift
+   // The app is running.
+   func windowScene(
+     _ windowScene: UIWindowScene,
+     userDidAcceptCloudKitShareWith metadata: CKShare.Metadata
+   ) {
+     NotificationCenter.default.post(
+       name: Notification.Name("RNCKUserDidAcceptCloudKitShare"), object: metadata)
+   }
+
+   // The invite starts the app. Add this to scene(_:willConnectTo:options:).
+   if let metadata = connectionOptions.cloudKitShareMetadata {
+     NotificationCenter.default.post(
+       name: Notification.Name("RNCKUserDidAcceptCloudKitShare"), object: metadata)
+   }
+   ```
 
 6. Build and run on a device signed in to iCloud. `getAccountStatus()`
    resolves `available`.
@@ -316,16 +328,22 @@ field name is permanent.
 
 ## Status
 
-This is an alpha. The table shows what is tested on two physical iPhones.
-The full checklist is in [`example/TESTING.md`](./example/TESTING.md).
+Private sync and sharing are tested on two physical iPhones, and in a
+production app on TestFlight. The full checklist is in
+[`example/TESTING.md`](./example/TESTING.md).
 
-| Area | Tested on devices | Not tested on devices yet |
-| --- | --- | --- |
-| Account | Status `available`, the same user id on two devices | Sign-out and sign-in with no relaunch, Android |
-| Private sync | Live sync, sync after a cold start, offline edits, field merge, delete | A kill during sync, sign-out then sign-in, purge, push with no "Sync now" |
-| Sharing | — | All of it |
-| Status | `offline`, `syncing`, `idle` | `quotaExceeded`, a switch of Apple IDs |
-| Setup | A new bare app reaches `available` in 15 minutes | — |
+These are not tested on devices yet:
+
+- Sign out of iCloud and sign in again with no relaunch.
+- A kill of the app during a sync.
+- `purged`, after Delete Data in the iCloud storage settings.
+- `quotaExceeded`, with full iCloud storage.
+- A switch of Apple IDs on one device.
+- An Android build. It must resolve `isAvailable()` as `false`.
+
+On a Debug build, iOS can hold the CloudKit push for minutes, so a change
+from another device arrives late. A TestFlight or App Store build gets the
+push in seconds. Test sync timing on a TestFlight build.
 
 The Swift unit tests cover the error map, the conflict merge, the field
 codec, the validation and the store. Report a problem in
