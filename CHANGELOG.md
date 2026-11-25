@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0](https://github.com/ltatarev/react-native-cloudkit/compare/1.0.0...1.1.0) (2026-11-25)
+
+### Features
+
+* add refetchZone to deliver a zone's records again ([b7ddaa9](https://github.com/ltatarev/react-native-cloudkit/commit/b7ddaa99ae9f7c2fe37f033bbf8259d1a618460b))
+
 ## [1.0.0](https://github.com/ltatarev/react-native-cloudkit/compare/0.1.0-alpha.0...1.0.0) (2026-11-03)
 
 ## 0.1.0-alpha.0 (2026-10-07)

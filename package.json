@@ -1,6 +1,6 @@
 {
   "name": "@ltatarev/react-native-cloudkit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "CloudKit sync and zone-wide sharing for bare React Native apps, on CKSyncEngine",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
