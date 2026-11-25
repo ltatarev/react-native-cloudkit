@@ -26,6 +26,7 @@ namespace margelo::nitro::ltatarev_reactnativecloudkit {
       prototype.registerHybridMethod("syncNow", &HybridCloudKitSpec::syncNow);
       prototype.registerHybridMethod("drainInbox", &HybridCloudKitSpec::drainInbox);
       prototype.registerHybridMethod("ackInbox", &HybridCloudKitSpec::ackInbox);
+      prototype.registerHybridMethod("refetchZone", &HybridCloudKitSpec::refetchZone);
       prototype.registerHybridMethod("presentShareSheet", &HybridCloudKitSpec::presentShareSheet);
       prototype.registerHybridMethod("presentManageSheet", &HybridCloudKitSpec::presentManageSheet);
       prototype.registerHybridMethod("getShare", &HybridCloudKitSpec::getShare);

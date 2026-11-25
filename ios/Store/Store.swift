@@ -372,6 +372,19 @@ actor Store {
     }
   }
 
+  /// Deletes every inbox row about one zone. `refetchZone` does this before
+  /// it delivers the zone again, so no event is delivered twice.
+  func clearInbox(_ zone: ZoneKey) throws {
+    try run(
+      """
+      DELETE FROM inbox
+      WHERE json_extract(payload_json, '$.zone.scope') = ?
+        AND json_extract(payload_json, '$.zone.name') = ?
+        AND COALESCE(json_extract(payload_json, '$.zone.owner'), '') = ?
+      """,
+      [.text(zone.scope.rawValue), .text(zone.zone), .text(zone.owner)])
+  }
+
   // MARK: zones
 
   func upsertZone(_ zone: ZoneKey, doNotSync: Bool) throws {

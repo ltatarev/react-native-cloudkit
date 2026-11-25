@@ -201,6 +201,14 @@ namespace margelo::nitro::ltatarev_reactnativecloudkit {
       auto __value = std::move(__result.value());
       return __value;
     }
+    inline std::shared_ptr<Promise<void>> refetchZone(const BridgeZoneRef& zone) override {
+      auto __result = _swiftPart.refetchZone(std::forward<decltype(zone)>(zone));
+      if (__result.hasError()) [[unlikely]] {
+        std::rethrow_exception(__result.error());
+      }
+      auto __value = std::move(__result.value());
+      return __value;
+    }
     inline std::shared_ptr<Promise<BridgeShareSheetResult>> presentShareSheet(const std::string& zoneName, const std::string& title, const std::optional<std::string>& thumbnailUri, BridgeSharePermission permission, bool allowOthersToInvite) override {
       auto __result = _swiftPart.presentShareSheet(zoneName, title, thumbnailUri, static_cast<int>(permission), std::forward<decltype(allowOthersToInvite)>(allowOthersToInvite));
       if (__result.hasError()) [[unlikely]] {

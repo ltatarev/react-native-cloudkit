@@ -146,6 +146,20 @@ do {
   let afterAck = try await store.drainInbox(limit: 10)
   check(afterAck.map(\.kind) == ["delete"], "an ack removes one row")
 
+  try await store.ackInbox(afterAck.map(\.id))
+  let notesZone = #"{"zone":{"scope":"private","name":"notes"},"recordName":"n1"}"#
+  let otherZone = #"{"zone":{"scope":"private","name":"other"},"recordName":"n2"}"#
+  let sharedNotes = #"{"zone":{"scope":"shared","name":"notes","owner":"_u1"},"recordName":"n3"}"#
+  try await store.appendInbox(kind: "upsert", payloadJson: notesZone)
+  try await store.appendInbox(kind: "upsert", payloadJson: otherZone)
+  try await store.appendInbox(kind: "upsert", payloadJson: sharedNotes)
+  try await store.clearInbox(ZoneKey(scope: .private, owner: "", zone: "notes"))
+  let leftAfterClear = try await store.drainInbox(limit: 10)
+  check(leftAfterClear.map(\.payloadJson) == [otherZone, sharedNotes], "clearInbox drops only that zone's rows")
+  try await store.clearInbox(ZoneKey(scope: .shared, owner: "_u1", zone: "notes"))
+  let leftAfterShared = try await store.drainInbox(limit: 10)
+  check(leftAfterShared.map(\.payloadJson) == [otherZone], "clearInbox matches the shared owner")
+
   let zone = ZoneKey(scope: .private, owner: "", zone: "notes")
   try await store.upsertZone(zone, doNotSync: true)
   let purged = try await store.isDoNotSync(zone)

@@ -111,6 +111,7 @@ export interface CloudKit extends HybridObject<{
   // reading
   drainInbox(limit: number): Promise<BridgeInboxEvent[]>;
   ackInbox(ids: string[]): Promise<void>;
+  refetchZone(zone: BridgeZoneRef): Promise<void>;
 
   // sharing
   presentShareSheet(

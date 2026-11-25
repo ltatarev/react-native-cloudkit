@@ -200,6 +200,16 @@ export function ackInbox(ids: string[]): Promise<void> {
   return call(() => native().ackInbox(ids));
 }
 
+/**
+ * Delivers every record of one zone again, as `upsert` events, after the
+ * zone's old inbox rows are removed. Call it after the app emptied its own
+ * copy of the zone and wants it back. Deletes are not delivered again. A
+ * zone that does not exist delivers nothing.
+ */
+export function refetchZone(zone: ZoneRef): Promise<void> {
+  return call(() => native().refetchZone(toBridgeZone(zone)));
+}
+
 // sharing
 
 /**

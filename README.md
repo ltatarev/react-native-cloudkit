@@ -297,6 +297,7 @@ from `@ltatarev/react-native-cloudkit/react`.
 | `syncNow()` | `Promise<void>` | Send and fetch now. |
 | `drainInbox(limit?)` | `Promise<InboxEvent[]>` | Read the oldest inbound changes that are not acked. |
 | `ackInbox(ids)` | `Promise<void>` | Remove applied events from the inbox. |
+| `refetchZone(zone)` | `Promise<void>` | Deliver every record of a zone again, as `upsert` events. Use it after the app emptied its own copy. Deletes are not delivered again. |
 | `presentShareSheet(zone, options)` | `Promise<'shared' \| 'cancelled'>` | Share a private zone. |
 | `presentManageSheet(zone)` | `Promise<void>` | Show `UICloudSharingController` for a shared zone. |
 | `getShare(zone)` | `Promise<ShareInfo \| null>` | The share and its participants. |

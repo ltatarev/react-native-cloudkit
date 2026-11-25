@@ -25,6 +25,7 @@ public protocol HybridCloudKitSpec_protocol: HybridObject {
   func syncNow() throws -> Promise<Void>
   func drainInbox(limit: Double) throws -> Promise<[BridgeInboxEvent]>
   func ackInbox(ids: [String]) throws -> Promise<Void>
+  func refetchZone(zone: BridgeZoneRef) throws -> Promise<Void>
   func presentShareSheet(zoneName: String, title: String, thumbnailUri: String?, permission: BridgeSharePermission, allowOthersToInvite: Bool) throws -> Promise<BridgeShareSheetResult>
   func presentManageSheet(zone: BridgeZoneRef) throws -> Promise<Void>
   func getShare(zone: BridgeZoneRef) throws -> Promise<BridgeShareInfo?>

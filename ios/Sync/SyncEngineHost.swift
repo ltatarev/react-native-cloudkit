@@ -178,10 +178,27 @@ final class SyncEngineHost: CKSyncEngineDelegate, @unchecked Sendable {
 
   private func handleFetchedRecordZoneChanges(_ changes: CKSyncEngine.Event.FetchedRecordZoneChanges) async throws {
     let types = try await store.recordTypes()
+    var wrote = try await ingest(changes.modifications.map(\.record))
+    for deletion in changes.deletions {
+      guard types[deletion.recordType] != nil else { continue }
+      let key = RecordCodec.key(for: deletion.recordID, scope: scope)
+      try await store.clearKnown(key)
+      try await store.clearOutbox(key)
+      try await store.appendInbox(
+        kind: "delete",
+        payloadJson: RecordCodec.refPayload(key, extra: ["recordType": .string(deletion.recordType)]))
+      wrote = true
+    }
+    if wrote { runtime.events.emit("inboxChanged") }
+  }
+
+  /// Writes fetched records to the store and the inbox. A normal fetch and
+  /// `refetchZone` both use it. Returns whether it wrote an inbox row.
+  func ingest(_ records: [CKRecord]) async throws -> Bool {
+    let types = try await store.recordTypes()
     let userId = await runtime.cachedUserId()
     var wrote = false
-    for modification in changes.modifications {
-      let record = modification.record
+    for record in records {
       /* The zone's CKShare, and any type the app did not declare, stay out. */
       guard let config = types[record.recordType] else { continue }
       let key = RecordCodec.key(for: record.recordID, scope: scope)
@@ -209,17 +226,7 @@ final class SyncEngineHost: CKSyncEngineDelegate, @unchecked Sendable {
           key: key, recordType: record.recordType, fields: fields, record: record, userId: userId))
       wrote = true
     }
-    for deletion in changes.deletions {
-      guard types[deletion.recordType] != nil else { continue }
-      let key = RecordCodec.key(for: deletion.recordID, scope: scope)
-      try await store.clearKnown(key)
-      try await store.clearOutbox(key)
-      try await store.appendInbox(
-        kind: "delete",
-        payloadJson: RecordCodec.refPayload(key, extra: ["recordType": .string(deletion.recordType)]))
-      wrote = true
-    }
-    if wrote { runtime.events.emit("inboxChanged") }
+    return wrote
   }
 
   // MARK: sent

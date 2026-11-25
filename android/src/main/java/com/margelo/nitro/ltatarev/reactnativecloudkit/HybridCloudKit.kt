@@ -35,6 +35,8 @@ class HybridCloudKit : HybridCloudKitSpec() {
 
   override fun ackInbox(ids: Array<String>): Promise<Unit> = Promise.resolved(Unit)
 
+  override fun refetchZone(zone: BridgeZoneRef): Promise<Unit> = Promise.resolved(Unit)
+
   override fun presentShareSheet(
     zoneName: String,
     title: String,

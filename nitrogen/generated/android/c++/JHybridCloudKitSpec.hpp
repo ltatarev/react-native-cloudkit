@@ -66,6 +66,7 @@ namespace margelo::nitro::ltatarev_reactnativecloudkit {
     std::shared_ptr<Promise<void>> syncNow() override;
     std::shared_ptr<Promise<std::vector<BridgeInboxEvent>>> drainInbox(double limit) override;
     std::shared_ptr<Promise<void>> ackInbox(const std::vector<std::string>& ids) override;
+    std::shared_ptr<Promise<void>> refetchZone(const BridgeZoneRef& zone) override;
     std::shared_ptr<Promise<BridgeShareSheetResult>> presentShareSheet(const std::string& zoneName, const std::string& title, const std::optional<std::string>& thumbnailUri, BridgeSharePermission permission, bool allowOthersToInvite) override;
     std::shared_ptr<Promise<void>> presentManageSheet(const BridgeZoneRef& zone) override;
     std::shared_ptr<Promise<std::optional<BridgeShareInfo>>> getShare(const BridgeZoneRef& zone) override;

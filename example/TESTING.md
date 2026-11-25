@@ -32,6 +32,10 @@ and the bundle id `com.ltatarev.cloudkit-example` must have iCloud
 - [x] Push check: B fetches with no "Sync now". Test it on a TestFlight
       build. On a Debug build, iOS can hold the push for minutes.
 
+- [ ] Refetch: add three notes on A and wait for them on B. On B, tap
+      **Refetch zone**: the log shows three `upsert` events, and the list
+      still shows each note once.
+
 ## Sharing
 
 - [x] A (Apple ID 1) taps Share and sends the invite to B (Apple ID 2)

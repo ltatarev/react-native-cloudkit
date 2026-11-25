@@ -22,6 +22,7 @@ import {
   listZones,
   presentManageSheet,
   presentShareSheet,
+  refetchZone,
   saveRecords,
   stopSharing,
   syncNow,
@@ -269,6 +270,13 @@ export default function App() {
             }}
           />
           <Button disabled={!ready} title="Add note" onPress={addNote} />
+          <Button
+            disabled={!ready}
+            title="Refetch zone"
+            onPress={() => {
+              refetchZone(zone).catch(report);
+            }}
+          />
         </View>
 
         <View style={styles.row}>

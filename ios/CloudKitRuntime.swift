@@ -345,6 +345,43 @@ final class CloudKitRuntime: @unchecked Sendable {
     await persistLastSynced()
   }
 
+  /// Delivers every record of one zone again, as `upsert` events. The app
+  /// calls it after it emptied its own copy of the zone and wants it back.
+  ///
+  /// `CKSyncEngine` keeps one change token per zone inside its state, with no
+  /// way to reset one zone. So this fetch runs beside the engine with no
+  /// token, and its records go through the same path as a normal fetch. The
+  /// zone's old inbox rows go first. A delete is not delivered again: a
+  /// record that is gone is not in the fetch. A zone that does not exist
+  /// delivers nothing.
+  func refetchZone(_ zone: ZoneKey) async throws {
+    let store = try openStore()
+    let engineHost = try host(zone.scope)
+    let container = try container()
+    let database = zone.scope == .private ? container.privateCloudDatabase : container.sharedCloudDatabase
+    let zoneID = RecordCodec.zoneID(for: zone)
+    try await store.clearInbox(zone)
+    var token: CKServerChangeToken?
+    var wrote = false
+    status.begin(zone.scope)
+    defer { status.end(zone.scope) }
+    do {
+      while true {
+        let page = try await database.recordZoneChanges(inZoneWith: zoneID, since: token)
+        let records = page.modificationResultsByID.values.compactMap { try? $0.get().record }
+        if try await engineHost.ingest(records) { wrote = true }
+        token = page.changeToken
+        if !page.moreComing { break }
+      }
+    } catch let error as CKError where error.code == .zoneNotFound {
+      return
+    } catch {
+      if let waiting = ErrorMap.waiting(for: error) { status.wait(waiting) }
+      throw error
+    }
+    if wrote { events.emit("inboxChanged") }
+  }
+
   // MARK: inbox
 
   func drain(limit: Int) async throws -> [InboxRow] {

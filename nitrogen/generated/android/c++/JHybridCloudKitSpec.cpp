@@ -318,6 +318,21 @@ namespace margelo::nitro::ltatarev_reactnativecloudkit {
       return __promise;
     }();
   }
+  std::shared_ptr<Promise<void>> JHybridCloudKitSpec::refetchZone(const BridgeZoneRef& zone) {
+    static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<JBridgeZoneRef> /* zone */)>("refetchZone");
+    auto __result = method(_javaPart, JBridgeZoneRef::fromCpp(zone));
+    return [&]() {
+      auto __promise = Promise<void>::create();
+      __result->cthis()->addOnResolvedListener([=](const jni::alias_ref<jni::JObject>& /* unit */) {
+        __promise->resolve();
+      });
+      __result->cthis()->addOnRejectedListener([=](const jni::alias_ref<jni::JThrowable>& __throwable) {
+        jni::JniException __jniError(__throwable);
+        __promise->reject(std::make_exception_ptr(__jniError));
+      });
+      return __promise;
+    }();
+  }
   std::shared_ptr<Promise<BridgeShareSheetResult>> JHybridCloudKitSpec::presentShareSheet(const std::string& zoneName, const std::string& title, const std::optional<std::string>& thumbnailUri, BridgeSharePermission permission, bool allowOthersToInvite) {
     static const auto method = _javaPart->javaClassStatic()->getMethod<jni::local_ref<JPromise::javaobject>(jni::alias_ref<jni::JString> /* zoneName */, jni::alias_ref<jni::JString> /* title */, jni::alias_ref<jni::JString> /* thumbnailUri */, jni::alias_ref<JBridgeSharePermission> /* permission */, jboolean /* allowOthersToInvite */)>("presentShareSheet");
     auto __result = method(_javaPart, jni::make_jstring(zoneName), jni::make_jstring(title), thumbnailUri.has_value() ? jni::make_jstring(thumbnailUri.value()) : nullptr, JBridgeSharePermission::fromCpp(permission), allowOthersToInvite);

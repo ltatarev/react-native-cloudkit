@@ -99,6 +99,10 @@ class HybridCloudKit: HybridCloudKitSpec {
     promise { try await self.runtime.ack(ids) }
   }
 
+  func refetchZone(zone: BridgeZoneRef) throws -> Promise<Void> {
+    promise { try await self.runtime.refetchZone(self.zoneKey(zone)) }
+  }
+
   // MARK: sharing
 
   func presentShareSheet(

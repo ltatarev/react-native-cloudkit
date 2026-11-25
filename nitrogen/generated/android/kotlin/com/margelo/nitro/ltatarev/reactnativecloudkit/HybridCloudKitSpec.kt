@@ -79,6 +79,10 @@ abstract class HybridCloudKitSpec: HybridObject() {
   
   @DoNotStrip
   @Keep
+  abstract fun refetchZone(zone: BridgeZoneRef): Promise<Unit>
+  
+  @DoNotStrip
+  @Keep
   abstract fun presentShareSheet(zoneName: String, title: String, thumbnailUri: String?, permission: BridgeSharePermission, allowOthersToInvite: Boolean): Promise<BridgeShareSheetResult>
   
   @DoNotStrip
